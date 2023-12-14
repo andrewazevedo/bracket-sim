@@ -8,7 +8,7 @@ const conferenceTeams = {
 const teams = {}
 
 const schedule = {
-    day: 1,
+    day: 0,
     "1": [[1, 2], [8, 10], [9, 16], [7, 11], [3, 15], [6, 12], [4, 14], [5, 13]],
     "2": [[9, 10], [1, 3], [8, 11], [2, 16], [7, 12], [4, 15], [6, 13], [5, 14]],
     "3": [[2, 3], [9, 11], [1, 4], [8, 12], [10, 16], [7, 13], [5, 15], [6, 14]],
@@ -78,7 +78,7 @@ function orderStandings() {
         }
         for (let i = 1; i < teamStandings.length + 1; i++) {
             for (const team in teams[conference]) {
-                if (team === teamStandings[i - 1][2]) {
+                if (team === teamStandings[i - 1][0]) {
                     teams[conference][team].standing = i;
                 }
             }
@@ -148,8 +148,49 @@ function displaySchedule() {
     }
 }
 
+function playGame() {
+    let dayNum = schedule.day;
+    let dayStr = dayNum.toString();
+    for (const conference in teams) {
+        for (let i = 0; i < schedule[dayStr].length; i++) {
+            let team1;
+            let team1Overall;
+            let team2;
+            let team2Overall;
+            for (const team in teams[conference]) {
+                if (teams[conference][team].teamNum === schedule[dayStr][i][0]) {
+                    team1 = team;
+                    team1Overall = (teams[conference][team].pg + teams[conference][team].sg + teams[conference][team].sf + teams[conference][team].pf + teams[conference][team].c) / 5;
+                } else if (teams[conference][team].teamNum === schedule[dayStr][i][1]) {
+                    team2 = team;
+                    team2Overall = (teams[conference][team].pg + teams[conference][team].sg + teams[conference][team].sf + teams[conference][team].pf + teams[conference][team].c) / 5;
+                }
+            }
+            let winningNum = Math.floor(Math.random() * ((team1Overall + team2Overall + 1) - 1) + 1);
+            if (winningNum >= 1 && winningNum <= team1Overall) {
+                for (const team in teams[conference]) {
+                    if (team === team1) {
+                        teams[conference][team].wins += 1;
+                    } else if (team === team2) {
+                        teams[conference][team].losses += 1;
+                    }
+                } 
+            } else if (winningNum > team1Overall && winningNum <= team1Overall + team2Overall) {
+                for (const team in teams[conference]) {
+                    if (team === team2) {
+                        teams[conference][team].wins += 1;
+                    } else if (team === team1) {
+                        teams[conference][team].losses += 1;
+                    }
+                } 
+            }
+        }
+    }
+}
+
 function simulateDay() {
     schedule.day += 1;
+    playGame();
     orderStandings();
     displayStandings();
     displaySchedule();
@@ -160,7 +201,6 @@ function start() {
     orderStandings();
     displayStandings();
     displaySchedule();
-    console.log(teams);
 }
 
 start();
