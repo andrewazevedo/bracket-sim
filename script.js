@@ -189,11 +189,13 @@ function playGame() {
 }
 
 function simulateDay() {
-    schedule.day += 1;
-    playGame();
-    orderStandings();
-    displayStandings();
-    displaySchedule();
+    if (schedule.day < 16) {
+        schedule.day += 1;
+        playGame();
+        orderStandings();
+        displayStandings();
+        displaySchedule();
+    }
 }
 
 function start() {
